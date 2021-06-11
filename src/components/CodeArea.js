@@ -154,7 +154,7 @@ class CodeArea extends React.Component{
                     }
                 );
 
-                console.log(data.results[0].alternatives[0].transcript);
+                console.log(data?.results[0]?.alternatives[0]?.transcript);
             })
             .catch((e) => console.log(e));
     }
