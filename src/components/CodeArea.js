@@ -1,47 +1,76 @@
-import { useState } from "react";
+import React from "react";
+import MicRecorder from 'mic-recorder-to-mp3';
+
 // Create api key on https://rapidapi.com/judge0-official/api/judge0-extra-ce/
 import keyList from "../.env";
 
-const CodeArea = () => {
-    const [userInput, setUserInput] = useState({
-        source: "import java.util.Scanner;\n" +
-            "\n" +
-            "\n" +
-            "class Main{\n" +
-            "\tpublic static void main(String[] args){\n" +
-            "\t\tScanner sc = new Scanner(System.in);\n" +
-            "\t\tSystem.out.println(\"What's your name?\");\n" +
-            "\t\tif(sc.hasNextLine()){\n" +
-            "\t\t\tString input = sc.nextLine().trim();\n" +
-            "\t\t\tif(input.equals(\"Mozambique\")){\n" +
-            "\t\t\t\tSystem.out.println(\"Mozambique is here!\");\n" +
-            "\t\t\t}else{\n" +
-            "\t\t\t\tSystem.out.printf(\"Hello, %s.\\n\", input);\n" +
-            "\t\t\t}\n" +
-            "\t\t}else{\n" +
-            "\t\t\tSystem.out.println(\"Enter something\");\n" +
-            "\t\t}\n" +
-            "\t}\n" +
-            "}",
-        stdin: "Mozambique"
-    });
+const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
-    const [output, setOutput] = useState("");
-    const [key, setKey] = useState(keyList[0]);
+class CodeArea extends React.Component{
+    constructor(props) {
+        super(props);
 
-    const handleChange = (e) => {
-        const target = e.target;
-        target.name === 'stdin'
-            ? setUserInput({ ...userInput, stdin: target.value })
-            : setUserInput({ ...userInput, source: target.value });
+        this.state = {
+            userInput: {
+                source: "import java.util.Scanner;\n" +
+                    "\n" +
+                    "\n" +
+                    "class Main{\n" +
+                    "\tpublic static void main(String[] args){\n" +
+                    "\t\tScanner sc = new Scanner(System.in);\n" +
+                    "\t\tSystem.out.println(\"What's your name?\");\n" +
+                    "\t\tif(sc.hasNextLine()){\n" +
+                    "\t\t\tString input = sc.nextLine().trim();\n" +
+                    "\t\t\tif(input.equals(\"Mozambique\")){\n" +
+                    "\t\t\t\tSystem.out.println(\"Mozambique is here!\");\n" +
+                    "\t\t\t}else{\n" +
+                    "\t\t\t\tSystem.out.printf(\"Hello, %s.\\n\", input);\n" +
+                    "\t\t\t}\n" +
+                    "\t\t}else{\n" +
+                    "\t\t\tSystem.out.println(\"Enter something\");\n" +
+                    "\t\t}\n" +
+                    "\t}\n" +
+                    "}",
+                stdin: "Mozambique"
+            },
+            output: "",
+            key: keyList[0],
+            permitted: false,
+            recording: false,
+            audioUrl: "#"
+        }
     }
 
-    const handleKeydown = (e) => {
+    componentDidMount() {
+        navigator.getUserMedia({ audio: true },
+            () => {
+                this.setState({
+                    permitted: true
+                });
+                console.log('Permission Granted');
+            },
+            () => {
+                console.log('Permission Denied');
+            },
+        );
+    }
+
+    handleChange = (e) => {
+        const target = e.target;
+        target.name === 'stdin'
+            ? this.setState({ userInput: {
+                    ...this.state.userInput, stdin: target.value
+            }})
+            : this.setState({ userInput: {
+                    ...this.state.userInput, source: target.value
+                }});
+    }
+
+    handleKeyDown = (e) => {
         if(e.key === 'Tab'){
             e.preventDefault();
 
             const text = e.target;
-
             const start = text.selectionStart;
 
             text.value = text.value.substring(0, start) +
@@ -51,45 +80,118 @@ const CodeArea = () => {
             text.selectionStart =
                 text.selectionEnd = start + 1;
         }
+
+        if(e.key === '`'){
+            e.preventDefault();
+            if(this.state.recording){
+                return;
+            }
+
+            if(!this.state.permitted){
+                alert("Audio permission not guaranteed");
+
+                navigator.getUserMedia({ audio: true },
+                    () => {
+                        this.setState({ permitted: true });
+                        console.log('Permission Granted');
+                    },
+                    () => {
+                        console.log('Permission Denied');
+                    },
+                );
+
+                return;
+            }
+
+            this.start();
+        }
     }
 
-    const handleSubmit = async (e) => {
+    handleKeyUp = (e) => {
+        if(e.key === '`'){
+            e.preventDefault();
+            this.stop();
+        }
+    }
+
+    start = () => {
+        if(!this.state.permitted){
+            console.log("Denied");
+            return;
+        }
+
+        Mp3Recorder
+            .start()
+            .then(() => {
+                this.setState({ recording: true });
+            }).catch((e) => console.error(e));
+    }
+
+    stop = () => {
+        Mp3Recorder
+            .stop()
+            .getMp3()
+            .then(([buffer, blob]) => {
+                const file = new File(buffer, 'me-at-thevoice.mp3', {
+                    type: blob.type,
+                    lastModified: Date.now()
+                });
+
+                this.setState({
+                    recording: false,
+                    audioUrl: URL.createObjectURL(blob)
+                });
+
+                // TODO: upload file to backend, then get text
+                fetch("https://powerful-brook-17823.herokuapp.com/", {
+                    method: "POST",
+                    body: "123"
+                }).then(res => {
+                    console.log(res.body)
+                    console.log("Request complete! response:", res);
+                });
+            })
+            .catch((e) => console.log(e));
+    }
+
+
+    handleSubmit = async (e) => {
         e.preventDefault();
 
-        setOutput("Submitting...\n");
+        this.setState({ output: "Submitting...\n" });
 
         const request1 = await fetch(
             "https://judge0-ce.p.rapidapi.com/submissions",
             {
                 method: "POST",
                 headers: {
-                    "x-rapidapi-key": key,
+                    "x-rapidapi-key": this.state.key,
                     "x-rapidapi-host": "judge0-extra-ce.p.rapidapi.com",
                     "content-type": "application/json",
                     "useQueryString": true
                 },
                 body: JSON.stringify({
-                    source_code: userInput.source,
-                    stdin: userInput.stdin,
+                    source_code: this.state.userInput.source,
+                    stdin: this.state.userInput.stdin,
                     // refers to Java
                     language_id: 4
                 })
             }
         );
 
-        setOutput("Submitted...\n");
+        this.setState({ output: "Submitted...\n" });
 
         const response = await request1.json();
 
         if(response.message?.includes("Upgrade your plan")){
-            const i = keyList.indexOf(key);
+            const i = keyList.indexOf(this.state.key);
             if(i < keyList.length - 1){
-                setOutput("Try again, if it doesn't work just give up.");
-                setKey(keyList[i + 1]);
+                this.setState({ output: "Try again, if it doesn't work just give up." });
+                this.setState({ key: keyList[i + 1] });
                 return;
             }
 
-            setOutput("Didn't spend any money on the API so it's now out of service, pls try tomorrow.");
+            this.setState({ output:"Didn't spend any money on the API so it's now out of service, pls try tomorrow." });
             return;
         }
 
@@ -100,7 +202,7 @@ const CodeArea = () => {
             {
                 method: "GET",
                 headers: {
-                    "x-rapidapi-key": key,
+                    "x-rapidapi-key": this.state.key,
                     "x-rapidapi-host": "judge0-extra-ce.p.rapidapi.com",
                     "content-type": "application/json",
                     "useQueryString": true
@@ -110,12 +212,12 @@ const CodeArea = () => {
 
         const res = await request2.json();
         if (res.error) {
-            setOutput(res.error.message());
+            this.setState({ output: res.error.message() });
             throw new Error(res.error);
         }
 
         if(res.status.description !== "Accepted"){
-            setOutput(res.status.description);
+            this.setState({ output: res.status.description });
         }else{
             let result = "";
             if (res.stdout)
@@ -124,32 +226,36 @@ const CodeArea = () => {
                 result += `Stderr:\n${res.stderr}\n`;
             result += `Time spent: ${res.time}s`;
 
-            setOutput(result);
+            this.setState({ output: result });
         }
     }
 
-    return (
-        <div id='CodeArea'>
-            <div className='row'>
-                <div className='col'>
-                    <textarea id='source' name='source' value={ userInput.source} onChange={ handleChange } onKeyDown={ handleKeydown }/>
-                    <button type='submit' onClick={ handleSubmit }>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
-                            <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
-                        </svg>
-                    </button>
-                </div>
-                <div className='col'>
-                    <div className='row'>
-                        <textarea id='stdin' name='stdin' value={ userInput.stdin } onChange={ handleChange }/>
+
+    render() {
+        return (
+            <div id='CodeArea'>
+                <div className='row'>
+                    <div className='col'>
+                        <textarea id='source' name='source' value={ this.state.userInput.source } onChange={ this.handleChange } onKeyDown={ this.handleKeyDown } onKeyUp={ this.handleKeyUp }/>
+                        <button type='submit' onClick={ this.handleSubmit }>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
+                            </svg>
+                        </button>
                     </div>
-                    <div className='row'>
-                        <textarea id='stdout' name='stdout' value={ output } readOnly={true}/>
+                    <div className='col'>
+                        <div className='row'>
+                            <textarea id='stdin' name='stdin' value={ this.state.userInput.stdin } onChange={ this.handleChange }/>
+                        </div>
+                        <div className='row'>
+                            <textarea id='stdout' name='stdout' value={ this.state.output } readOnly={true}/>
+                        </div>
                     </div>
+                    <audio src={this.state.audioUrl} controls="controls" />
                 </div>
             </div>
-        </div>
-    );
+        );
+    }
 }
 
 export default CodeArea;
