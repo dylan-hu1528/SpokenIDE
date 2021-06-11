@@ -147,7 +147,7 @@ class CodeArea extends React.Component{
                 formData.append('file', file);
 
                 // TODO: upload file to backend, then get text
-                const { data } = await axios.post('/api/uploadFile', formData, {
+                const { data } = await axios.post('https://powerful-brook-17823.herokuapp.com/api/uploadFile', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
