@@ -5,6 +5,7 @@ import MicRecorder from 'mic-recorder-to-mp3';
 import keyList from "../.env";
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
+const axios = require('axios');
 
 class CodeArea extends React.Component{
     constructor(props) {
@@ -107,10 +108,10 @@ class CodeArea extends React.Component{
         }
     }
 
-    handleKeyUp = (e) => {
+    handleKeyUp = async (e) => {
         if(e.key === '`'){
             e.preventDefault();
-            this.stop();
+            await this.stop();
         }
     }
 
@@ -127,12 +128,12 @@ class CodeArea extends React.Component{
             }).catch((e) => console.error(e));
     }
 
-    stop = () => {
+    stop = async () => {
         Mp3Recorder
             .stop()
             .getMp3()
-            .then(([buffer, blob]) => {
-                const file = new File(buffer, 'me-at-thevoice.mp3', {
+            .then(async ([buffer, blob]) => {
+                const file = new File(buffer, 'temp.mp3', {
                     type: blob.type,
                     lastModified: Date.now()
                 });
@@ -142,14 +143,18 @@ class CodeArea extends React.Component{
                     audioUrl: URL.createObjectURL(blob)
                 });
 
+                const formData = new FormData();
+                formData.append('file', file);
+
                 // TODO: upload file to backend, then get text
-                fetch("https://powerful-brook-17823.herokuapp.com/", {
-                    method: "POST",
-                    body: "123"
-                }).then(res => {
-                    console.log(res.body)
-                    console.log("Request complete! response:", res);
-                });
+                const { data } = await axios.post('/api/uploadFile', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    }
+                );
+
+                console.log(data.results[0].alternatives[0].transcript);
             })
             .catch((e) => console.log(e));
     }
