@@ -152,6 +152,13 @@ class CodeArea extends React.Component{
                 if(data){
                     text.value = content.substring(0, start) + addedVal + content.substring(end);
                     text.selectionStart = text.selectionEnd = start + addedVal.length;
+
+                    this.setState({
+                        userInput: {
+                            ...this.state.userInput,
+                            source: text.value
+                        }
+                    });
                 }
             })
             .catch((e) => console.log(e));
