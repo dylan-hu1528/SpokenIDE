@@ -18,18 +18,7 @@ class CodeArea extends React.Component{
                     "\n" +
                     "class Main{\n" +
                     "\tpublic static void main(String[] args){\n" +
-                    "\t\tScanner sc = new Scanner(System.in);\n" +
-                    "\t\tSystem.out.println(\"What's your name?\");\n" +
-                    "\t\tif(sc.hasNextLine()){\n" +
-                    "\t\t\tString input = sc.nextLine().trim();\n" +
-                    "\t\t\tif(input.equals(\"Mozambique\")){\n" +
-                    "\t\t\t\tSystem.out.println(\"Mozambique is here!\");\n" +
-                    "\t\t\t}else{\n" +
-                    "\t\t\t\tSystem.out.printf(\"Hello, %s.\\n\", input);\n" +
-                    "\t\t\t}\n" +
-                    "\t\t}else{\n" +
-                    "\t\t\tSystem.out.println(\"Enter something\");\n" +
-                    "\t\t}\n" +
+                    "\t\t\n" +
                     "\t}\n" +
                     "}",
                 stdin: "Mozambique"
@@ -147,14 +136,23 @@ class CodeArea extends React.Component{
                 formData.append('file', file);
 
                 // TODO: upload file to backend, then get text
-                const { data } = await axios.post('https://powerful-brook-17823.herokuapp.com/api/uploadFile', formData, {
+                const { data } = await axios.post(' https://powerful-brook-17823.herokuapp.com/api/uploadFile', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
                     }
                 );
 
-                console.log(data?.results[0]?.alternatives[0]?.transcript);
+                const text = document.getElementById("source");
+                const content = text.value;
+                const start = text.selectionStart;
+                const end = text.selectionEnd;
+                const addedVal = data + "\n\t\t";
+
+                if(data){
+                    text.value = content.substring(0, start) + addedVal + content.substring(end);
+                    text.selectionStart = text.selectionEnd = start + addedVal.length;
+                }
             })
             .catch((e) => console.log(e));
     }
