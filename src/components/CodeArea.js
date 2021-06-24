@@ -13,22 +13,19 @@ class CodeArea extends React.Component{
 
         this.state = {
             userInput: {
-                source: "import java.util.Scanner;\n" +
-                    "\n" +
-                    "\n" +
-                    "class Main{\n" +
+                source: "class Main{\n" +
                     "\tpublic static void main(String[] args){\n" +
                     "\t\t\n" +
                     "\t}\n" +
                     "}",
-                stdin: "Mozambique"
+                stdin: "Input here"
             },
-            output: "",
+            output: "Code output will be here",
             key: keyList[0],
             permitted: false,
             recording: false,
             audioUrl: "#",
-            voiceResult: ""
+            voiceResult: "While working in code area, you can press ` to say something"
         }
     }
 
@@ -267,7 +264,7 @@ class CodeArea extends React.Component{
                         <textarea id='stdin' name='stdin' value={ this.state.userInput.stdin } onChange={ this.handleChange }/>
                     </div>
                     <div className='row'>
-                        <button type='submit' onClick={ this.handleSubmit }>
+                        <button type='submit' style={{color: '#2ecc71'}} onClick={ this.handleSubmit }>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
                             </svg>

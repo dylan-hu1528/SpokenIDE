@@ -1,5 +1,12 @@
-body{
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Source+Sans+Pro:wght@400&display=swap');
 
+*{
+  margin: 0;
+  padding: 0;
+}
+
+h1{
+  font-family: 'Pacifico', cursive;
 }
 
 #CodeArea{
@@ -54,16 +61,39 @@ textarea{
 
   font-size: 1.04em;
   background-color: rgba(99, 110, 114, 0.4);
+  font-family: 'Source Sans Pro', sans-serif;
 }
 
 #source{
-  height: 480px;
+  height: 420px;
 }
 
 #voiceResult{
-  height: 130px;
+  height: 70px;
 }
 
-#stdin, #stdout{
-  height: 280px;
+#stdin{
+  height: 200px;
+}
+
+#stdout{
+  height: 240px;
+}
+
+#toolBar{
+  display: flex;
+
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+#toolBar svg{
+  height: 24px;
+  width: 24px;
+
+  margin: 10px;
+}
+
+a{
+  color: black;
 }
