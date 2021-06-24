@@ -18,14 +18,15 @@ class CodeArea extends React.Component{
                     "\t\t\n" +
                     "\t}\n" +
                     "}",
-                stdin: "Input here"
+                stdin: "Input here."
             },
-            output: "Code output will be here",
+            output: "Code output will be here.",
             key: keyList[0],
             permitted: false,
             recording: false,
             audioUrl: "#",
-            voiceResult: "While working in code area, you can press ` to say something"
+            voiceResult: "While working in the code area, you can press ` to say something.",
+            position: 55
         }
     }
 
@@ -52,6 +53,12 @@ class CodeArea extends React.Component{
             : this.setState({ userInput: {
                     ...this.state.userInput, source: target.value
                 }});
+    }
+
+    handleVoiceChange = (e) => {
+        this.setState({
+            voiceResult: e.target.value
+        })
     }
 
     handleKeyDown = (e) => {
@@ -102,6 +109,10 @@ class CodeArea extends React.Component{
         }
     }
 
+    handleBlur = (e) => {
+        this.setState({position: e.target.selectionStart});
+    }
+
     start = () => {
         if(!this.state.permitted){
             console.log("Denied");
@@ -113,6 +124,26 @@ class CodeArea extends React.Component{
             .then(() => {
                 this.setState({ recording: true });
             }).catch((e) => console.error(e));
+    }
+
+    insertCode = (data) => {
+        const text = document.getElementById("source");
+        const content = text.value;
+        const start = text.selectionStart || this.state.position;
+        const end = text.selectionEnd || this.state.position;
+        const addedVal = data + "\n\t\t";
+
+        if(data){
+            text.value = content.substring(0, start) + addedVal + content.substring(end);
+            text.selectionStart = text.selectionEnd = start + addedVal.length;
+
+            this.setState({
+                userInput: {
+                    ...this.state.userInput,
+                    source: text.value
+                }
+            });
+        }
     }
 
     stop = async () => {
@@ -133,7 +164,6 @@ class CodeArea extends React.Component{
                 const formData = new FormData();
                 formData.append('file', file);
 
-                // TODO: upload file to backend, then get text
                 // test url: http://localhost:80/api/uploadFile
                 const { data } = await axios.post('https://powerful-brook-17823.herokuapp.com/api/uploadFile', formData, {
                         headers: {
@@ -150,27 +180,26 @@ class CodeArea extends React.Component{
                     return;
                 }
 
-                const text = document.getElementById("source");
-                const content = text.value;
-                const start = text.selectionStart;
-                const end = text.selectionEnd;
-                const addedVal = data + "\n\t\t";
-
-                if(data){
-                    text.value = content.substring(0, start) + addedVal + content.substring(end);
-                    text.selectionStart = text.selectionEnd = start + addedVal.length;
-
-                    this.setState({
-                        userInput: {
-                            ...this.state.userInput,
-                            source: text.value
-                        }
-                    });
-                }
+                this.insertCode(data);
             })
             .catch((e) => console.log(e));
     }
 
+    reSubmit = async () => {
+        // test url: http://localhost:80/text/onlyOnePart?userInput=
+        const { data } = await axios.post('https://powerful-brook-17823.herokuapp.com/text/onlyOnePart?userInput='+this.state.voiceResult);
+
+        if(data === "Invalid input here!"){
+            this.setState({
+                voiceResult: data
+            });
+
+
+            return;
+        }
+
+        this.insertCode(data);
+    }
 
     handleSubmit = async (e) => {
         e.preventDefault();
@@ -253,10 +282,11 @@ class CodeArea extends React.Component{
             <div id='CodeArea' className='row'>
                 <div className='col'>
                     <div className='row'>
-                        <textarea id='source' name='source' value={ this.state.userInput.source } onChange={ this.handleChange } onKeyDown={ this.handleKeyDown } onKeyUp={ this.handleKeyUp }/>
+                        <textarea id='source' name='source' value={ this.state.userInput.source } onChange={ this.handleChange } onKeyDown={ this.handleKeyDown } onKeyUp={ this.handleKeyUp } onBlur={this.handleBlur}/>
                     </div>
                     <div className='row'>
-                        <textarea id='voiceResult' value={this.state.voiceResult} readOnly={true}/>
+                        <textarea id='voiceResult' value={this.state.voiceResult} onChange={this.handleVoiceChange}/>
+                        <button id='voiceBtn' onClick={this.reSubmit}>Go</button>
                     </div>
                 </div>
                 <div className='col'>
@@ -264,7 +294,7 @@ class CodeArea extends React.Component{
                         <textarea id='stdin' name='stdin' value={ this.state.userInput.stdin } onChange={ this.handleChange }/>
                     </div>
                     <div className='row'>
-                        <button type='submit' style={{color: '#2ecc71'}} onClick={ this.handleSubmit }>
+                        <button type='submit' style={{color: '#00b894'}} onClick={ this.handleSubmit }>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
                             </svg>

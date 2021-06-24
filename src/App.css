@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Source+Sans+Pro:wght@400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&family=Source+Sans+Pro:wght@400&family=Indie+Flower&display=swap');
 
 *{
   margin: 0;
@@ -32,7 +32,7 @@ h1{
   flex-direction: column;
 }
 
-button[type='submit']{
+button{
   border: none;
   outline: none;
   background-color: transparent;
@@ -45,7 +45,7 @@ svg{
 
 svg:hover{
   cursor: pointer;
-  color: dodgerblue;
+  color: #0984e3;
 }
 
 textarea{
@@ -71,6 +71,23 @@ textarea{
 #voiceResult{
   height: 70px;
 }
+
+#voiceBtn{
+  position: absolute;
+
+  bottom: 0;
+
+  font-size: 2em;
+  font-family: 'Indie Flower', cursive;
+
+  color: #ff7675;
+  cursor: pointer;
+}
+
+#voiceBtn:hover{
+  color: #d63031;
+}
+
 
 #stdin{
   height: 200px;
