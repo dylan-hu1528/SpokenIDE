@@ -27,7 +27,8 @@ class CodeArea extends React.Component{
             key: keyList[0],
             permitted: false,
             recording: false,
-            audioUrl: "#"
+            audioUrl: "#",
+            voiceResult: ""
         }
     }
 
@@ -136,12 +137,21 @@ class CodeArea extends React.Component{
                 formData.append('file', file);
 
                 // TODO: upload file to backend, then get text
-                const { data } = await axios.post(' https://powerful-brook-17823.herokuapp.com/api/uploadFile', formData, {
+                // test url: http://localhost:80/api/uploadFile
+                const { data } = await axios.post('https://powerful-brook-17823.herokuapp.com/api/uploadFile', formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
                         }
                     }
                 );
+
+                if(data.includes("Some secret here")){
+                    this.setState({
+                        voiceResult: data.substring(16)
+                    });
+
+                    return;
+                }
 
                 const text = document.getElementById("source");
                 const content = text.value;
@@ -243,26 +253,35 @@ class CodeArea extends React.Component{
 
     render() {
         return (
-            <div id='CodeArea'>
-                <div className='row'>
-                    <div className='col'>
+            <div id='CodeArea' className='row'>
+                <div className='col'>
+                    <div className='row'>
                         <textarea id='source' name='source' value={ this.state.userInput.source } onChange={ this.handleChange } onKeyDown={ this.handleKeyDown } onKeyUp={ this.handleKeyUp }/>
+                    </div>
+                    <div className='row'>
+                        <textarea id='voiceResult' value={this.state.voiceResult} readOnly={true}/>
+                    </div>
+                </div>
+                <div className='col'>
+                    <div className='row'>
+                        <textarea id='stdin' name='stdin' value={ this.state.userInput.stdin } onChange={ this.handleChange }/>
+                    </div>
+                    <div className='row'>
                         <button type='submit' onClick={ this.handleSubmit }>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
                                 <path d="m12.14 8.753-5.482 4.796c-.646.566-1.658.106-1.658-.753V3.204a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506z"/>
                             </svg>
                         </button>
                     </div>
-                    <div className='col'>
-                        <div className='row'>
-                            <textarea id='stdin' name='stdin' value={ this.state.userInput.stdin } onChange={ this.handleChange }/>
-                        </div>
-                        <div className='row'>
-                            <textarea id='stdout' name='stdout' value={ this.state.output } readOnly={true}/>
-                        </div>
+                    <div className='row'>
+                        <textarea id='stdout' name='stdout' value={ this.state.output } readOnly={true}/>
                     </div>
-                    <audio src={this.state.audioUrl} controls="controls" />
                 </div>
+
+                {/*
+                    use to test audio recording
+                    <audio src={this.state.audioUrl} controls="controls" />
+                */}
             </div>
         );
     }

@@ -1,4 +1,9 @@
+body{
+
+}
+
 #CodeArea{
+  position: relative;
   display: flex;
 }
 
@@ -21,14 +26,19 @@
 }
 
 button[type='submit']{
-  position: absolute;
-  top: 300px;
-  right: -10px;
+  border: none;
+  outline: none;
+  background-color: transparent;
 }
 
 svg{
-  height: 10px;
-  width: 10px;
+  height: 40px;
+  width: 40px;
+}
+
+svg:hover{
+  cursor: pointer;
+  color: dodgerblue;
 }
 
 textarea{
@@ -42,11 +52,16 @@ textarea{
 
   resize: none;
 
+  font-size: 1.04em;
   background-color: rgba(99, 110, 114, 0.4);
 }
 
 #source{
-  height: 600px;
+  height: 480px;
+}
+
+#voiceResult{
+  height: 130px;
 }
 
 #stdin, #stdout{
