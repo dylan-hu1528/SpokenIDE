@@ -1,23 +1,37 @@
-const ToolBar = () => {
+const ToolBar = ({ displayModeChange }) => {
+    const changeSize = (mode) => {
+        const box = document.getElementById("CodeArea");
+        const style = window.getComputedStyle(box, null).getPropertyValue('font-size');
+        const fontSize = parseFloat(style);
+
+        let newSize = fontSize + mode;
+
+        if(newSize > 28)
+            newSize = 28;
+        if(newSize < 16)
+            newSize = 16;
+
+        box.style.fontSize = newSize + 'px';
+    }
+
     return (
-        // TODO: buttons to adjust font size, search words, record input, night mode?
         <div id='toolBar' className='row'>
             <div className='col'>
                 <div className='row'>
                     <div className='col'>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" onClick={() => changeSize(2)}>
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
                         </svg>
                     </div>
                     <div className='col'>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" onClick={() => changeSize(-2)}>
                             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
                             <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
                         </svg>
                     </div>
                     <div className='col' style={{color: '#fdcb6e'}}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 16" onClick={ () => displayModeChange() }>
                             <path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
                         </svg>
                     </div>

@@ -5,8 +5,30 @@
   padding: 0;
 }
 
+
 h1{
   font-family: 'Pacifico', cursive;
+}
+
+.App{
+  padding-top: 20px;
+
+  height: 100vh;
+  overflow: hidden;
+}
+
+.App.night{
+  color: #74b9ff;
+
+  background-color: black;
+}
+
+.App.night a{
+  color: #74b9ff;
+}
+
+.App.night h1{
+  color: #ff7675;
 }
 
 #CodeArea{
@@ -48,6 +70,12 @@ svg:hover{
   color: #0984e3;
 }
 
+.App.night textarea{
+  color: aliceblue;
+
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
 textarea{
   outline: none;
   border: none;
@@ -60,7 +88,7 @@ textarea{
   resize: none;
 
   font-size: 1.04em;
-  background-color: rgba(99, 110, 114, 0.4);
+  background-color: rgba(0, 0, 0, 0.2);
   font-family: 'Source Sans Pro', sans-serif;
 }
 

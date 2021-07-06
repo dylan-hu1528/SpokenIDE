@@ -5,13 +5,27 @@ import CodeArea from "./components/CodeArea";
 
 import './App.css';
 
-const App = () => {
-    return (
-        <div className="App">
-            <ToolBar/>
-            <CodeArea/>
-        </div>
-    );
+class App extends React.Component{
+    constructor(props) {
+        super(props);
+
+        this.state = { dayMode: true };
+    }
+
+    displayModeChange = () => {
+        document.body.setAttribute("color", "black");
+
+        this.setState({ dayMode: !this.state.dayMode });
+    }
+
+    render(){
+        return (
+            <div className={ "App" + (this.state.dayMode ? "" : " night") }>
+                <ToolBar displayModeChange = { this.displayModeChange }/>
+                <CodeArea/>
+            </div>
+        );
+    }
 }
 
 export default App;
