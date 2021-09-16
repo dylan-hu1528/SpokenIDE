@@ -1,5 +1,18 @@
 # Spoken IDE
 
+### CSE 5914: Capstone Design: Knowledge-Based System
+
+Team Happy planet
+
+
+Author
+
+    Yunxuan Hu
+    Shicong Wang
+    Jiingming Chen
+    Cyrus Li
+
+
 ### Description
 
 A coding helper created for programmers who are new to Java. 
